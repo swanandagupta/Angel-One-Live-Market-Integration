@@ -1,0 +1,58 @@
+{
+  "model_type": "XGBClassifier",
+  "feature_names": [
+    "smma20",
+    "smma120",
+    "smma_gap",
+    "smma20_slope",
+    "smma120_slope",
+    "smma_gap_change",
+    "ltp",
+    "return_1m",
+    "return_5m",
+    "return_20m",
+    "avg_ltp_20m",
+    "avg_ltp_60m",
+    "distance_from_avg_20m",
+    "distance_from_avg_60m",
+    "rolling_std_5m",
+    "rolling_std_20m",
+    "signal_buy"
+  ],
+  "feature_count": 17,
+  "training_dataset": "data_storage/ml_dataset_v2.csv",
+  "training_date": "2026-08-21T18:24:11.625339",
+  "hyperparameters": {
+    "max_depth": 3,
+    "learning_rate": 0.1,
+    "n_estimators": 100,
+    "min_child_weight": 1,
+    "scale_pos_weight": 1.8765,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0
+  },
+  "test_metrics": {
+    "accuracy": 0.6471,
+    "precision": 0.1875,
+    "recall": 0.375,
+    "f1": 0.25,
+    "roc_auc": 0.6919,
+    "confusion_matrix": [
+      [
+        30,
+        13
+      ],
+      [
+        5,
+        3
+      ]
+    ]
+  },
+  "selected_threshold": 0.55,
+  "class_mapping": {
+    "0": "Loss",
+    "1": "Profit"
+  }
+}

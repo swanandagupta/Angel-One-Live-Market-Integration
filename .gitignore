@@ -1,0 +1,53 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+.pytest_cache/
+
+# Build & Executable Artifacts
+build/
+dist/
+*.manifest
+
+# Media & Large Screen Recording Files (Excluded from Git)
+*.mp4
+recording.mp4
+
+# Environment variables & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials/
+private/
+.streamlit/secrets.toml
+
+# Logs & Local Caches
+logs/
+*.log
+scratch/
+tmp/
+temp/
+
+# SQLite Database & Caches
+*.sqlite
+*.db
+data_storage/*.db
+
+# Explicitly Track Production Model Artifacts
+!models/*.joblib
+!models/*.json
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
