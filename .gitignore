@@ -37,10 +37,12 @@ scratch/
 tmp/
 temp/
 
-# SQLite Database & Caches
+# SQLite Database & Scrip Master Caches
 *.sqlite
 *.db
 data_storage/*.db
+data_storage/*.json
+data_storage/angel_scrip_master.json
 
 # Explicitly Track Production Model Artifacts
 !models/*.joblib
