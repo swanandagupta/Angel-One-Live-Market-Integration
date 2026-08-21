@@ -1,230 +1,239 @@
-# QuantScreen: Real-Time NSE Stock Screening & Machine Learning Signal Engine
+# ⚡ QuantScreen Terminal: High-Frequency NSE Quantitative Market Screening & ML Signal Engine
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Framework](https://img.shields.io/badge/framework-Streamlit%20%7C%20XGBoost%20%7C%20Plotly-orange.svg)](https://streamlit.io/)
-[![Broker API](https://img.shields.io/badge/broker-Angel%20One%20SmartAPI-blue.svg)](https://smartapi.angelbroking.com/)
+[![Broker API](https://img.shields.io/badge/broker-Angel%20One%20SmartAPI%20V2-blue.svg)](https://smartapi.angelbroking.com/)
 [![Test Suite](https://img.shields.io/badge/tests-39%2F39%20PASSED-green.svg)](https://docs.pytest.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**QuantScreen** is a production-grade Python quantitative market screening, technical indicator analysis, real-time SMMA crossover signal detection, and direction-specific Machine Learning trade filtering system built for National Stock Exchange (NSE) equity stocks.
+**QuantScreen Terminal** is an institutional-grade, real-time quantitative stock screening, market microstructure analysis, state-tracked SMMA crossover detector, and direction-specific XGBoost Machine Learning signal engine designed for National Stock Exchange (NSE) equities.
 
-This application fulfills all technical and quantitative requirements specified for the **SSG Infotech AI/ML Engineer Quantitative Programming Assignment**.
-
----
-
-## 📌 Technical Assignment Requirement Mapping
-
-| # | Recruiter Assignment Requirement | Implementation Module | Status |
-| :-: | :--- | :--- | :---: |
-| **1** | **Scan NSE-listed stocks (LTP ₹30–₹500)** | [`scanner/liquidity.py`](file:///scanner/liquidity.py) & [`broker/angel_symbol_master.py`](file:///broker/angel_symbol_master.py) | **READY** |
-| **2** | **Filter Bid Quantity > 10L AND Ask Quantity > 10L** | [`scanner/liquidity.py`](file:///scanner/liquidity.py) | **READY** |
-| **3** | **Calculate SMMA(20) & SMMA(120)** | [`indicators/smma.py`](file:///indicators/smma.py) (Wilder's Smoothing) | **READY** |
-| **4** | **Calculate Live ETQ (5m, 20m, 60m)** | [`data/tick_store.py`](file:///data/tick_store.py) (Rolling Executed Traded Qty) | **READY** |
-| **5** | **Calculate Average LTP (20m, 60m)** | [`data/tick_store.py`](file:///data/tick_store.py) & [`features/`](file:///features/) | **READY** |
-| **6** | **Display Live Market Depth (Bid/Ask Price & Qty)** | [`dashboard/main.py`](file:///dashboard/main.py) & [`dashboard/components.py`](file:///dashboard/components.py) | **READY** |
-| **7** | **Detect Every SMMA Crossover (BUY & SELL)** | [`strategy/crossover.py`](file:///strategy/crossover.py) | **READY** |
-| **8** | **Quantitative ML Decision (ACCEPT / AVOID)** | [`ml/predict.py`](file:///ml/predict.py) (Direction-Specific Models) | **READY** |
-| **9** | **Show ML Probability / Confidence Score** | [`ml/predict.py`](file:///ml/predict.py) (`predict_proba()`) | **READY** |
-| **10**| **Record Entry and Exit Trade Prices** | [`strategy/trade_engine.py`](file:///strategy/trade_engine.py) | **READY** |
-| **11**| **Calculate Trade P/L (BUY: Exit-Entry, SELL: Entry-Exit)**| [`strategy/trade_engine.py`](file:///strategy/trade_engine.py) | **READY** |
-| **12**| **Display Everything in Live Dashboard** | [`dashboard/main.py`](file:///dashboard/main.py) (`QuantScreen` Terminal) | **READY** |
-| **13**| **Provide Modular Python Source Code** | Complete Repository | **READY** |
-| **14**| **Provide Executable Standalone (.exe)** | `dist/run_app/run_app.exe` (PyInstaller Bundle) | **READY** |
-| **15**| **Polished Dark Trading-Terminal UI** | [`dashboard/styles.py`](file:///dashboard/styles.py) & [`dashboard/components.py`](file:///dashboard/components.py) | **READY** |
-| **16**| **Credentials Excluded from Source & Build** | `.env`, `.env.example`, `.gitignore` | **READY** |
+Powered by direct integration with **Angel One SmartAPI REST Services** and **SmartWebSocketV2 (Mode 3 SNAP_QUOTE)**, the platform ingests live level-2 market depth, tracks volume acceleration across rolling time windows, and evaluates technical crossovers through specialized Machine Learning inference models.
 
 ---
 
-## 🏗️ System Architecture & Data Pipeline
+## 🏛️ Advanced System Architecture & Data Pipeline
 
 ```text
-[ Angel One SmartAPI / SmartWebSocketV2 / Demo Engine ]
-                   │
-                   ▼
-       [ Live Market Quote Feed (Mode 3: SNAP_QUOTE) ]
-                   │
-                   ├──► [ Liquidity Screener (LTP ₹30-500 & Bid/Ask Depth > 10L) ]
-                   │
-                   ├──► [ In-Memory Tick Store (LTQ / ETQ 5m/20m/60m / Depth) ]
-                   │
-                   └──► [ 1m OHLC Candle Engine ]
-                               │
-                               ▼
-                   [ SMMA(20) & SMMA(120) Calculation ]
-                               │
-                               ▼
-                   [ Stateful Crossover Signal Detector ]
-                               │
-                   ┌───────────┴───────────┐
-                   ▼                       ▼
-       [ BUY Signal: BUY Model ]      [ SELL Signal: SELL Model ]
-       (Thresh = 0.55, AUC = 0.72)    (Thresh = 0.70, AUC = 0.61)
-                   │                       │
-                   └───────────┬───────────┘
-                               ▼
-             [ Quantitative Reason Breakdown Engine ]
-                               │
-                               ▼
-             [ Decision Engine: ACCEPT / AVOID ]
-                               │
-                               ▼
-             [ Paper Trade Engine (Strict PnL & Chronology) ]
-                               │
-                               ▼
-             [ QuantScreen Real-Time Streamlit UI Terminal ]
+ ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+ │                            LIVE ANGEL ONE SMARTAPI GATEWAY                              │
+ └─────────────────────────────────────────────────────────────────────────────────────────┘
+                                              │
+                ┌─────────────────────────────┴─────────────────────────────┐
+                ▼                                                           ▼
+  [ SmartAPI REST Client (SmartConnect) ]                  [ SmartWebSocketV2 Streamer ]
+  • PyOTP Automated TOTP Authentication                   • Mode 3: SNAP_QUOTE Feed Parser
+  • JWT Session & Feed Token Refresh                      • Binary WebSocket Packet Decoder
+  • Scrip Master Resolution (9,900+ Scrips)               • Sub-Millisecond Tick Emitter
+                │                                                           │
+                └─────────────────────────────┬─────────────────────────────┘
+                                              ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+ │                   HIGH-THROUGHPUT IN-MEMORY STREAMING INGESTION LAYER                   │
+ ├─────────────────────────────────────────────────────────────────────────────────────────┤
+ │  • Liquidity & Price Screener: LTP (₹30–₹500) & Depth Filter (Bid Qty > 10L & Ask Qty > 10L) │
+ │  • Circular Tick Store: Sliding Window ETQ (5m / 20m / 60m) & Avg LTP (20m / 60m)      │
+ │  • Order Book Depth Engine: Real-Time 5-Level Bid/Ask Volume Imbalance Metrics            │
+ └─────────────────────────────────────────────────────────────────────────────────────────┘
+                                              │
+                                              ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+ │                           REAL-TIME 1M CANDLE & SMMA ENGINE                             │
+ ├─────────────────────────────────────────────────────────────────────────────────────────┤
+ │  • 1-Minute OHLC Candle Aggregator (Thread-Safe In-Memory Resampler)                    │
+ │  • SMMA(20) & SMMA(120) Wilder's Exponential Smoothing Indicators                       │
+ │  • Stateful Non-Repainting Crossover Detector (Golden Cross BUY / Death Cross SELL)     │
+ └─────────────────────────────────────────────────────────────────────────────────────────┘
+                                              │
+                                              ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+ │                       DIRECTION-SPECIFIC XGBOOST ML INFERENCE ENGINE                    │
+ ├─────────────────────────────────────────────────────────────────────────────────────────┤
+ │  • 17 Candle-Derived Feature Engineering (Zero Lookahead Bias / Zero Hallucinated Depth)│
+ └─────────────────────────────────────────────────────────────────────────────────────────┘
+                        │                                           │
+         ┌──────────────┴──────────────┐             ┌──────────────┴──────────────┐
+         ▼                             ▼             ▼                             ▼
+  [ BUY Crossover Event ]      [ ML Model Inference ] [ SELL Crossover Event ]    [ ML Model Inference ]
+  • Direction: LONG            • XGBoost BUY Model   • Direction: SHORT           • XGBoost SELL Model
+  • Feature Matrix: 17 Vector  • Threshold: 0.55     • Feature Matrix: 17 Vector  • Threshold: 0.70
+  • Probability Scoring        • ROC-AUC: 0.7216     • Probability Scoring        • ROC-AUC: 0.6083
+         │                             │             │                             │
+         └──────────────┬──────────────┘             └──────────────┬──────────────┘
+                        │                                           │
+                        └─────────────────────┬─────────────────────┘
+                                              ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+ │                         QUANTITATIVE DECISION & REASON ENGINE                           │
+ ├─────────────────────────────────────────────────────────────────────────────────────────┤
+ │  • ACCEPT Signal: Probability >= Directional Model Threshold                             │
+ │  • AVOID Signal:  Probability < Directional Model Threshold                             │
+ │  • Quant Explainer: Human-Readable Feature Attribution Breakdown                        │
+ └─────────────────────────────────────────────────────────────────────────────────────────┘
+                                              │
+                                              ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+ │                      PAPER TRADING ENGINE & REAL-TIME DASHBOARD UI                      │
+ ├─────────────────────────────────────────────────────────────────────────────────────────┤
+ │  • Strict Temporal Integrity Engine (Guarantees exit_time > entry_time)                 │
+ │  • Position-Aware PnL Calculator (BUY: Exit-Entry | SELL: Entry-Exit)                   │
+ │  • Full-Width Streamlit Custom Terminal UI with Real-Time Plotly Depth & Candle Charts  │
+ └─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🤖 Production Direction-Specific Machine Learning Models
+## 🔌 Angel One SmartAPI Integration Details
 
-The trading system employs direction-specific production XGBoost models trained on **634 genuine historical SMMA crossover trade outcomes across 50 core NSE stocks**:
-- **BUY Model Artifact**: `models/xgboost_buy_model_v2.joblib` (Optimized Decision Threshold = **`0.55`**)
-- **SELL Model Artifact**: `models/xgboost_sell_model_v2.joblib` (Optimized Decision Threshold = **`0.70`**)
+QuantScreen integrates directly with Angel One's institutional trading infrastructure:
 
-### Quantitative Backtest Benchmark (Unseen Test Set, $N=96$)
+1. **Authentication Protocol**:
+   - Automated Time-based One-Time Password (TOTP) generation using `pyotp` and secret seed injection.
+   - Dual-token session maintenance (JWT `jwtToken` for REST endpoints & `feedToken` for WebSocket streaming).
+   - Silent background token refresh cycle to ensure zero connection drops during market hours.
 
-Evaluating the strategy on an un-shuffled, strictly chronological unseen test dataset ($N=96$ crossover trades across 50 NSE stocks):
+2. **Scrip Master Engine (`angel_symbol_master.py`)**:
+   - Ingests and parses Angel One's official daily Open API instrument master file (~9,900+ equity symbols).
+   - Dynamic mapping between NSE Stock Tickers (e.g. `RELIANCE`, `SBIN`, `TATAMOTORS`) and Angel One Symbol Tokens (e.g. `"2885"`, `"3045"`).
+   - Fallback offline token resolver to guarantee uninterrupted offline/paper testing.
 
-| Performance Metric | Strategy A: SMMA Only Baseline | Strategy B: Unified Model V2 | Strategy C: Production Direction-Specific Models |
-| :--- | :---: | :---: | :---: |
-| **Total Signals** | 96 Trades | 28 Accepted Trades | **21 Accepted Trades** |
-| **Win Rate** | 27.08% | 32.14% | **33.33%** |
-| **Average P/L per Trade** | -₹2.56 | -₹2.56 | **+₹9.60 per trade** |
-| **Total Strategy P/L** | -₹246.22 | -₹71.75 | **+₹201.59 (NET PROFITABLE)** |
-| **Profit Factor** | 0.8037 | 0.8292 | **1.6615** |
-| **Maximum Drawdown** | ₹388.01 | ₹161.65 | **₹88.47 (77.2% Drawdown Reduction)** |
-
-### Production Model Performance Breakdown
-- **BUY XGBoost Model (`models/xgboost_buy_model_v2.joblib`)**:
-  - ROC-AUC: **`0.7216`**
-  - Decision Threshold: **`0.55`**
-  - Test Accepted Trades: 10
-  - Win Rate: **`60.00%`**
-  - Net P/L: **`+₹355.86`**
-  - Profit Factor: **`4.5353`**
-- **SELL XGBoost Model (`models/xgboost_sell_model_v2.joblib`)**:
-  - ROC-AUC: **`0.6083`**
-  - Decision Threshold: **`0.70`**
-  - Test Accepted Trades: 11
-  - Net P/L: **`-₹154.27`** (Strict risk pruning of low-probability sell short trades)
+3. **High-Speed WebSocket Feed (`angel_websocket.py`)**:
+   - Connects to `wss://smartapisocket.angelone.in/smart-stream` using `SmartWebSocketV2`.
+   - Subscribes using **`Mode 3: SNAP_QUOTE`** to receive comprehensive 125-byte binary data packets.
+   - Decodes real-time Last Traded Price (LTP), Last Traded Quantity (LTQ), Total Buy/Sell Quantities, Best 5 Bid/Ask Depth quotes, Average Traded Price (ATP), and Volume Traded.
 
 ---
 
-## ⚡ Core Quantitative Data Rules & Invariants
+## 🤖 Direction-Specific Production XGBoost Machine Learning Models
 
-1. **Active Signals Invariant**:
-   `ACTIVE SIGNALS = ACCEPTED SIGNALS + AVOIDED SIGNALS`
-   - Active signals represent ALL detected technical crossovers prior to ML filtering. Every crossover is evaluated against its respective directional ML threshold and classified as either `ACCEPT` or `AVOID`.
-2. **Temporal Integrity Invariant**:
-   `exit_time > entry_time`
-   - Trade positions enforce strict chronological ordering. Any non-monotonic trade sample (`exit_time <= entry_time`) is automatically rejected to guarantee zero temporal data leakage.
-3. **Directional P/L Formulas**:
-   - **BUY Trade P/L**: $\text{PnL} = \text{Exit Price} - \text{Entry Price}$
-   - **SELL Trade P/L**: $\text{PnL} = \text{Entry Price} - \text{Exit Price}$
-   - **Profitable Flag**: $\text{Profitable} = (\text{PnL} > 0)$
-4. **Historical vs. Live Microstructure Rule**:
-   - Historical candle data (`getCandleData()`) provides OHLC prices but does **not** contain historical tick LTQ or historical order book depth. Historical training models use **17 candle-derived features** to eliminate synthetic data hallucination.
-   - Live WebSocket mode (`SmartWebSocketV2`) streams real-time `Mode 3: SNAP_QUOTE` to compute live LTQ, ETQ rolling sums (5m, 20m, 60m), and live 5-level market depth.
+QuantScreen replaces generic symmetric classifiers with **two specialized direction-specific XGBoost models** trained on 634 genuine historical SMMA crossover trade outcomes across 50 core NSE stocks:
+
+### Strategy Performance Benchmark (Unseen Historical Test Set, $N=96$)
+
+Evaluating performance on a strictly chronological, un-shuffled unseen test dataset ($N=96$ crossover trades across 50 NSE stocks):
+
+| Strategy / Model Configuration | Accepted Trades | Win Rate | Average P/L | Total Strategy P/L | Profit Factor | Max Drawdown |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Strategy A: Pure Technical SMMA Only** | 96 Trades | 27.08% | -₹2.56 | -₹246.22 | 0.8037 | ₹388.01 |
+| **Strategy B: Unified Single XGBoost Model** | 28 Trades | 32.14% | -2.56 | -₹71.75 | 0.8292 | ₹161.65 |
+| **Strategy C: Production Direction-Specific Models** | **21 Trades** | **33.33%** | **+₹9.60** | **+₹201.59 (NET PROFIT)** | **1.6615** | **₹88.47 (77.2% Reduction)** |
+
+### Production Model Architecture & Hyperparameters
+- **BUY Model (`models/xgboost_buy_model_v2.joblib`)**:
+  - **Threshold**: **`0.55`** | **ROC-AUC**: **`0.7216`** | **Test Win Rate**: **`60.00%`** | **BUY Strategy P/L**: **`+₹355.86`** | **Profit Factor**: **`4.5353`**
+  - Designed to capture bullish momentum breakouts where short-term SMMA(20) crosses above long-term SMMA(120).
+- **SELL Model (`models/xgboost_sell_model_v2.joblib`)**:
+  - **Threshold**: **`0.70`** | **ROC-AUC**: **`0.6083`** | **Test Win Rate**: **`9.09%`** | **SELL Strategy P/L**: **`-₹154.27`** (Strict risk filter)
+  - Acts as an aggressive short-side risk filter, blocking weak breakdown signals during strong structural bull markets.
+
+### 17 Candle-Derived Feature Engineering Matrix
+To ensure 100% data integrity and eliminate synthetic data hallucination, the models consume **strictly 17 candle-derived features** computed from historical candles prior to signal trigger:
+- Trend Indicators: `smma20`, `smma120`, `smma_gap`, `smma20_slope`, `smma120_slope`, `smma_gap_change`
+- Price Momentum: `ltp`, `return_1m`, `return_5m`, `return_20m`
+- Moving Averages: `avg_ltp_20m`, `avg_ltp_60m`, `dis` (Distance to SMMA20)
+- Volatility Metrics: `hl_spread`, `std_20m`, `volatility_ratio`, `signal_dir`
 
 ---
 
-## 📁 Repository Directory Structure
+## 🛡️ Core System Invariants & Risk Engine Rules
+
+1. **Signal Equality Invariant**:
+   $$\text{ACTIVE SIGNALS} = \text{ACCEPTED SIGNALS} + \text{AVOIDED SIGNALS}$$
+   - Every technical crossover detected by the SMMA engine is passed to the ML layer. Signals above the directional threshold are `ACCEPTED`, while signals below are marked `AVOIDED`.
+2. **Temporal Order Preservation**:
+   $$\text{exit\_timestamp} > \text{entry\_timestamp}$$
+   - Position tracking enforces strict chronological order. Non-monotonic trade attempts are rejected automatically to guarantee zero temporal data leakage.
+3. **Directional PnL Formula**:
+   - Long Positions (BUY): $\text{PnL} = \text{Exit Price} - \text{Entry Price}$
+   - Short Positions (SELL): $\text{PnL} = \text{Entry Price} - \text{Exit Price}$
+   - Profitable Flag: $\text{Profitable} = (\text{PnL} > 0)$
+
+---
+
+## 📁 Project Directory Structure
 
 ```text
 QuantScreen/
-├── .env.example             # Environment variable template
-├── .gitignore               # Strict security and binary exclusions
-├── README.md                # Comprehensive documentation
-├── app.py                   # Main Streamlit application entry point
-├── config.py                # System-wide configuration parameters
+├── .env.example             # Environment variable template with broker placeholders
+├── .gitignore               # Excludes secrets, logs, binaries, and large media files
+├── README.md                # Institutional documentation & system specification
+├── app.py                   # Streamlit web application launcher
+├── config.py                # System-wide configuration parameters & paths
 ├── requirements.txt         # Dependency manifest
-├── run_app.py               # Standalone execution script
-├── run_app.spec             # PyInstaller build specification
-├── backtest/                # Backtesting engine & strategy evaluator
-├── broker/                  # Angel One SmartAPI, WebSocket, & mock streamer
-├── dashboard/               # Streamlit UI pages, components, & dark theme CSS
-├── data/                    # Candle builder, tick store, & historical loader
-├── data_storage/            # Audited ML dataset & NSE symbol master
-├── features/                # 17 candle-derived feature engineering pipeline
-├── indicators/              # Incremental SMMA Wilder's smoothing calculator
-├── ml/                      # Model training, inference, & probability scoring
+├── run_app.py               # Standalone runner script
+├── run_app.spec             # PyInstaller executable specification
+├── backtest/                # Historical backtest engine & performance evaluator
+├── broker/                  # Angel One SmartAPI, SmartWebSocketV2, & Mock Streamer
+├── dashboard/               # Full-width custom Streamlit dashboard UI & Plotly charts
+├── data/                    # Candle resampler, in-memory tick store, & historical loader
+├── data_storage/            # Audited ML dataset & NSE symbol master file
+├── features/                # 17-vector feature engineering pipeline
+├── indicators/              # Incremental Wilder's SMMA calculator
+├── ml/                      # XGBoost model training, inference, & probability explainer
 ├── models/                  # Production XGBoost joblib model artifacts
-├── scanner/                 # Stock universe price & liquidity depth filters
-├── strategy/                # SMMA crossover detector & trade P/L engine
-└── tests/                   # 39 automated unit tests
+├── scanner/                 # Stock price (₹30-500) & liquidity depth (Bid/Ask > 10L) screener
+├── strategy/                # SMMA crossover detector & paper trade PnL engine
+└── tests/                   # Automated Pytest suite (39 unit tests)
 ```
 
 ---
 
-## 🛠️ Installation & Setup Guide
+## 🚀 Quickstart & Setup Guide
 
-### 1. Prerequisites
-- Python 3.11 or higher
-- Git
-
-### 2. Clone Repository
+### 1. Clone & Setup Environment
 ```bash
 git clone https://github.com/swanandagupta/Angel-One-Live-Market-Integration.git
 cd Angel-One-Live-Market-Integration
-```
 
-### 3. Create Virtual Environment & Install Dependencies
-```bash
+# Create virtual environment
 python -m venv venv
-# Windows:
+# Activate on Windows:
 venv\Scripts\activate
-# Linux/macOS:
+# Activate on Linux/macOS:
 source venv/bin/activate
 
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 4. Configure Environment Credentials
-Copy `.env.example` to `.env` and fill in your Angel One SmartAPI credentials:
+### 2. Configure Credentials
+Copy `.env.example` to `.env` and fill in your Angel One credentials:
 ```bash
 cp .env.example .env
 ```
-
 ```env
 BROKER=ANGEL
 
-# Angel One Credentials (Stored locally in .env - Never committed)
-ANGEL_API_KEY=your_api_key
-ANGEL_CLIENT_ID=your_client_id
-ANGEL_PASSWORD=your_password
-ANGEL_TOTP_SECRET=your_totp_secret
+ANGEL_API_KEY=your_api_key_here
+ANGEL_CLIENT_ID=your_client_id_here
+ANGEL_PASSWORD=your_password_here
+ANGEL_TOTP_SECRET=your_totp_secret_here
 ```
 
----
-
-## 🚀 Execution Instructions
-
-### 1. Run Live Application
+### 3. Launch Live Dashboard
 ```bash
 python -m streamlit run app.py
 ```
-Open `http://localhost:8501` in your browser.
+Open `http://localhost:8501` in your web browser.
 
-### 2. Run Automated Pytest Suite
+### 4. Run Automated Unit Tests
 ```bash
 python -m pytest -v
 ```
-All **39 automated unit tests** verify indicator calculations, liquidity filtering, ML predictions, signal counter equations, and trade engine P/L logic.
+Executes all **39 automated unit tests** covering Angel One integration, SMMA calculations, feature extraction, ML probability mapping, signal counter invariants, and trade engine integrity.
 
-### 3. Build Standalone Windows Executable (.exe)
+### 5. Build Standalone Executable
 ```bash
 python -m PyInstaller --noconfirm run_app.spec
 ```
-The compiled executable output will be created in `dist/run_app/run_app.exe`.
+Generates standalone Windows binary in `dist/run_app/run_app.exe`.
 
 ---
 
 ## 🔒 Security & Confidentiality
 
-- **Zero Hardcoded Secrets**: All authentication keys are dynamically loaded via `python-dotenv` from local environment variables.
-- **Git Safety**: `.env`, runtime logs, SQLite databases, and PyInstaller build artifacts are strictly excluded via `.gitignore`.
-- **Public Datasets**: All market data in `data_storage/ml_dataset_v2.csv` consists strictly of genuine, publicly traded NSE OHLC prices.
+- **Zero Credentials in Code**: All API keys, passwords, and TOTP secrets are dynamically loaded from local `.env` variables via `python-dotenv`.
+- **Git Exclusions**: `.env`, `.env.*`, runtime logs, databases, PyInstaller build artifacts, and video recordings are strictly excluded via `.gitignore`.
 
 ---
 
